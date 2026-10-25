@@ -32,6 +32,7 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
+import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +61,8 @@ public class TranslationManager {
 
     private final LuckPermsPlugin plugin;
     private final Set<Locale> installed = ConcurrentHashMap.newKeySet();
-    private TranslationRegistry registry;
+    private TranslationRegistry registry; // TODO: DELETE
+    private TranslationStore.StringBased<MessageFormat> newRegistry;
 
     private final Path translationsDirectory;
     private final Path repositoryTranslationsDirectory;
@@ -97,14 +100,24 @@ public class TranslationManager {
 
     public void reload() {
         // remove any previous registry
-        if (this.registry != null) {
+        if (this.registry != null) { // TODO: DELETE
             GlobalTranslator.translator().removeSource(this.registry);
+            this.installed.clear();
+        }
+        if (this.newRegistry != null) {
+            GlobalTranslator.translator().removeSource(this.newRegistry);
             this.installed.clear();
         }
 
         // create a translation registry
-        this.registry = TranslationRegistry.create(Key.key("luckperms", "main"));
-        this.registry.defaultLocale(DEFAULT_LOCALE);
+        // Deprecated
+        // For removal since 4.20.0. Use TranslationStore.messageFormat(Key) instead.
+        this.newRegistry = TranslationStore.messageFormat(Key.key("luckperms", "main"));
+        this.registry = TranslationRegistry.create(Key.key("luckperms", "main")); // TODO: DELETE
+        // Deprecated
+        // For removal since 4.20.0. Use TranslationStore.messageFormat(Key) instead.
+        this.registry.defaultLocale(DEFAULT_LOCALE); // TODO: DELETE
+        this.newRegistry.defaultLocale(DEFAULT_LOCALE);
 
         // load custom translations first, then the base (built-in) translations after.
         loadFromFileSystem(this.customTranslationsDirectory, false);
@@ -112,7 +125,8 @@ public class TranslationManager {
         loadFromResourceBundle();
 
         // register it to the global source, so our translations can be picked up by adventure-platform
-        GlobalTranslator.translator().addSource(this.registry);
+        GlobalTranslator.translator().addSource(this.registry); // TODO: DELETE
+        GlobalTranslator.translator().addSource(this.newRegistry);
     }
 
     /**
@@ -121,7 +135,8 @@ public class TranslationManager {
     private void loadFromResourceBundle() {
         ResourceBundle bundle = ResourceBundle.getBundle("luckperms", DEFAULT_LOCALE, UTF8ResourceBundleControl.get());
         try {
-            this.registry.registerAll(DEFAULT_LOCALE, bundle, false);
+            this.registry.registerAll(DEFAULT_LOCALE, bundle, false); // TODO: DELETE
+            this.newRegistry.registerAll(DEFAULT_LOCALE, bundle, false);
         } catch (IllegalArgumentException e) {
             if (!isAdventureDuplicatesException(e)) {
                 this.plugin.getLogger().warn("Error loading default locale file", e);
@@ -165,7 +180,8 @@ public class TranslationManager {
             Locale localeWithoutCountry = new Locale(locale.getLanguage());
             if (!locale.equals(localeWithoutCountry) && !localeWithoutCountry.equals(DEFAULT_LOCALE) && this.installed.add(localeWithoutCountry)) {
                 try {
-                    this.registry.registerAll(localeWithoutCountry, bundle, false);
+                    this.registry.registerAll(localeWithoutCountry, bundle, false); // TODO: DELETE
+                    this.newRegistry.registerAll(localeWithoutCountry, bundle, false);
                 } catch (IllegalArgumentException e) {
                     // ignore
                 }
@@ -187,7 +203,8 @@ public class TranslationManager {
             bundle = new PropertyResourceBundle(reader);
         }
 
-        this.registry.registerAll(locale, bundle, false);
+        this.registry.registerAll(locale, bundle, false); // TODO: DELETE
+        this.newRegistry.registerAll(locale, bundle, false);
         this.installed.add(locale);
         return Maps.immutableEntry(locale, bundle);
     }

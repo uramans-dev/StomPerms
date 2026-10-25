@@ -49,6 +49,7 @@ import net.kyori.adventure.text.ComponentIteratorFlag;
 import net.kyori.adventure.text.ComponentIteratorType;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.translation.TranslationRegistry;
+import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import net.luckperms.api.actionlog.Action;
 import net.luckperms.api.context.ContextSet;
@@ -109,16 +110,20 @@ public class MessageTest {
             "luckperms.command.misc.invalid-input-empty-stub"
     );
 
-    private static TranslationRegistry registry;
+    private static TranslationRegistry registry; // TODO: DELETE
+    private static TranslationStore.StringBased<MessageFormat> newRegistry;
     private static Set<String> translationKeys;
 
     @BeforeAll
     public static void setupRenderer() {
-        registry = TranslationRegistry.create(Key.key("luckperms", "test"));
+        registry = TranslationRegistry.create(Key.key("luckperms", "test")); // TODO: DELETE
+        newRegistry = TranslationStore.messageFormat(Key.key("luckperms", "test"));
+
 
         ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH, UTF8ResourceBundleControl.get());
         translationKeys = ImmutableSet.copyOf(bundle.keySet());
         registry.registerAll(Locale.ENGLISH, bundle, false);
+        newRegistry.registerAll(Locale.ENGLISH, bundle, false); // TODO: DELETE
     }
 
     private static Stream<Field> getMessageFields() {
@@ -162,7 +167,8 @@ public class MessageTest {
         assertTrue(translationKeys.contains(key), "unknown translation key: " + key);
 
         List<Component> args = component.args();
-        MessageFormat fmt = registry.translate(key, Locale.ENGLISH);
+        MessageFormat fmt = registry.translate(key, Locale.ENGLISH); // TODO: DELETE
+        MessageFormat newFmt = newRegistry.translate(key, Locale.ENGLISH);
         assertNotNull(fmt);
         assertEquals(fmt.getFormats().length, args.size(), "number of formats in translation for " + key + " does not match number of arguments");
     }
@@ -179,13 +185,13 @@ public class MessageTest {
 
         List<Method> buildMethods = Arrays.stream(type.getDeclaredMethods())
                 .filter(method -> method.getName().equals("build"))
-                .collect(Collectors.toList());
+                .toList();
 
         if (buildMethods.size() != 1) {
             throw new IllegalStateException("Expected exactly one build() method - " + buildMethods);
         }
 
-        Method buildMethod = buildMethods.get(0);
+        Method buildMethod = buildMethods.getFirst();
         Object[] parameters = new Object[buildMethod.getParameterCount()];
 
         if (buildMethod.getParameterCount() != 0) {
@@ -263,12 +269,10 @@ public class MessageTest {
             mock = mock(clazz, Answers.RETURNS_SMART_NULLS);
         }
 
-        if (mock instanceof LuckPermsBootstrap) {
-            LuckPermsBootstrap bootstrap = (LuckPermsBootstrap) mock;
+        if (mock instanceof LuckPermsBootstrap bootstrap) {
             lenient().when(bootstrap.getType()).thenReturn(Platform.Type.BUKKIT);
             lenient().when(bootstrap.getStartupTime()).thenReturn(Instant.now());
-        } else if (mock instanceof LuckPermsPlugin) {
-            LuckPermsPlugin plugin = (LuckPermsPlugin) mock;
+        } else if (mock instanceof LuckPermsPlugin plugin) {
 
             LuckPermsBootstrap bootstrap = (LuckPermsBootstrap) mockArgument(LuckPermsBootstrap.class);
             lenient().when(plugin.getBootstrap()).thenReturn(bootstrap);
@@ -280,15 +284,13 @@ public class MessageTest {
             lenient().when(plugin.getExtensionManager()).thenReturn(extManager);
 
             lenient().when(plugin.getMessagingService()).thenReturn(Optional.empty());
-        } else if (mock instanceof PermissionHolder) {
-            PermissionHolder holder = (PermissionHolder) mock;
+        } else if (mock instanceof PermissionHolder holder) {
 
             LuckPermsPlugin plugin = (LuckPermsPlugin) mockArgument(LuckPermsPlugin.class);
             lenient().when(holder.getPlugin()).thenReturn(plugin);
 
             lenient().when(holder.getFormattedDisplayName()).thenReturn(Component.text("stub"));
-        } else if (mock instanceof SimpleExtensionManager) {
-            SimpleExtensionManager manager = (SimpleExtensionManager) mock;
+        } else if (mock instanceof SimpleExtensionManager manager) {
             lenient().when(manager.getLoadedExtensions()).thenReturn(ImmutableList.of());
         }
 

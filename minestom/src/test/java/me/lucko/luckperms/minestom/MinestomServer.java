@@ -29,7 +29,7 @@ import net.minestom.server.network.ConnectionManager;
 
 public final class MinestomServer {
 
-    public static void main(String[] args) {
+    static void main() {
         MinecraftServer server = MinecraftServer.init(new Auth.Online());
         MinecraftServer.setBrandName("LU15");
 

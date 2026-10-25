@@ -30,6 +30,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.TranslationRegistry;
+import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
@@ -51,12 +53,15 @@ public class DurationFormatterTest {
 
     @BeforeAll
     public static void setupRenderer() {
-        TranslationRegistry registry = TranslationRegistry.create(Key.key("luckperms", "test"));
+        TranslationRegistry registry = TranslationRegistry.create(Key.key("luckperms", "test")); // TODO: DELETE
+        TranslationStore.StringBased<MessageFormat> newRegistry =  TranslationStore.messageFormat(Key.key("luckperms", "test"));
 
         ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH, UTF8ResourceBundleControl.get());
-        registry.registerAll(Locale.ENGLISH, bundle, false);
+        registry.registerAll(Locale.ENGLISH, bundle, false); // TODO: DELETE
+        newRegistry.registerAll(Locale.ENGLISH, bundle, false);
 
-        renderer = TranslatableComponentRenderer.usingTranslationSource(registry);
+        renderer = TranslatableComponentRenderer.usingTranslationSource(registry); // TODO: DELETE
+        renderer = TranslatableComponentRenderer.usingTranslationSource(newRegistry);
     }
 
     private static String render(Component component) {

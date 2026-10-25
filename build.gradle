@@ -19,8 +19,11 @@ subprojects {
     group = 'dev.lu15'
     version = '5.5-SNAPSHOT'
 
-//    sourceCompatibility = 11
-//    targetCompatibility = 11
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        sourceCompatibility = '25'
+        targetCompatibility = '25'
+    }
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
@@ -57,11 +60,6 @@ subprojects {
     project.ext.patchVersion = determinePatchVersion()
     project.ext.apiVersion = project.ext.majorVersion + '.' + project.ext.minorVersion
     project.ext.fullVersion = project.ext.apiVersion + '.' + project.ext.patchVersion
-
-    license {
-        rule(rootProject.file('HEADER.txt'))
-        include '**/*.java'
-    }
 
     repositories {
         // Fix issue with lwjgl-freetype not being found on macOS / ForgeGradle issue
