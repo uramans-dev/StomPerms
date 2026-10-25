@@ -5,15 +5,13 @@ pluginManagement {
             name = 'Fabric'
             url = 'https://maven.fabricmc.net/'
         }
-        maven {
-            name = 'Forge'
-            url = 'https://maven.minecraftforge.net/'
-        }
+        mavenCentral()
+        gradlePluginPortal()
     }
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
+    id("org.gradle.toolchains.foojay-resolver-convention") version("1.0.0")
 }
 
 rootProject.name = 'luckperms'
@@ -21,26 +19,7 @@ include (
         'api',
         'common',
         'common:loader-utils',
-//        'bukkit',
-//        'bukkit:loader',
-//        'bukkit-legacy',
-//        'bukkit-legacy:loader',
-//        'bungee',
-//        'bungee:loader',
-//        'fabric',
-//        'neoforge',
-//        'neoforge:loader',
-//        'forge',
-//        'forge:loader',
-        'minestom',
-//        'nukkit',
-//        'nukkit:loader',
-//        'sponge',
-//        'sponge:loader',
-//        'sponge:sponge-service',
-//        'sponge:sponge-service-proxy',
-//        'velocity',
-//        'standalone',
-//        'standalone:loader',
-//        'standalone:app'
+        'common:minecraft',
+        'common:placeholders',
+        'minestom'
 )

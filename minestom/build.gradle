@@ -4,16 +4,24 @@ plugins {
     id "java-library"
 }
 
-// minestom requires java 21+
-//sourceCompatibility = 25
-//targetCompatibility = 25
-
 repositories {
     mavenCentral()
 }
 
+/*
+    Gradle did not build the project because there were no
+    JUnit-compatible files in the `minestorm.src.test` folder.
+    If you need to run JUnit tests, you must remove this parameter.
+ */
+test {
+    enabled = false
+}
+
 dependencies {
-    var minestom = "net.minestom:minestom:2025.12.20c-1.21.11"
+    var minestom = "net.minestom:minestom:2026.10.07-26.2"
+
+    compileOnly "org.slf4j:slf4j-api:2.0.16"
+    compileOnly("net.kyori:adventure-api:5.2.0")
 
     api(project(":common")) {
         // exclude default config providers as they are inaccessible from the minestom module anyway
@@ -44,7 +52,7 @@ dependencies {
     testImplementation 'com.h2database:h2:2.1.214'
 }
 
-task processSource(type: Sync) {
+tasks.register('processSource', Sync) {
     from sourceSets.main.java
     filter(ReplaceTokens, tokens: [VERSION: project.ext.fullVersion])
     into project.getLayout().getBuildDirectory().get().dir("src")
@@ -59,61 +67,4 @@ compileJava {
 java {
     withJavadocJar()
     withSourcesJar()
-}
-
-publishing {
-    repositories {
-        maven {
-            name = 'hyperaSnapshots'
-            url = 'https://repo.hypera.dev/snapshots/'
-            credentials(PasswordCredentials)
-        }
-    }
-
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = 'luckperms-minestom'
-
-            from components.java
-
-            pom {
-                name = 'LuckPerms Minestom'
-                description = 'A permissions plugin for Minestom servers.'
-                url = 'https://github.com/LooFifteen/LuckPerms'
-
-                licenses {
-                    license {
-                        name = 'MIT'
-                        url = 'https://opensource.org/licenses/MIT'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'lucko'
-                        name = 'Luck'
-                        url = 'https://lucko.me'
-                        email = 'git@lucko.me'
-                    }
-                    developer {
-                        id = 'LooFifteen'
-                        name = 'LU15'
-                        url = 'https://lu15.dev'
-                        email = 'luis@lu15.dev'
-                    }
-                }
-
-                scm {
-                    connection = 'scm:git:https://github.com/LooFifteen/LuckPerms.git'
-                    developerConnection = 'scm:git:git@github.com:LooFifteen/LuckPerms.git'
-                    url = 'https://github.com/LooFifteen/LuckPerms'
-                }
-
-                issueManagement {
-                    system = 'GitHub'
-                    url = 'https://github.com/LooFifteen/LuckPerms/issues'
-                }
-            }
-        }
-    }
 }
