@@ -49,7 +49,6 @@ import net.kyori.adventure.text.ComponentIteratorFlag;
 import net.kyori.adventure.text.ComponentIteratorType;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.translation.TranslationStore;
-import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import net.luckperms.api.actionlog.Action;
 import net.luckperms.api.context.ContextSet;
 import net.luckperms.api.model.data.DataType;
@@ -116,7 +115,7 @@ public class MessageTest {
         registry = TranslationStore.messageFormat(Key.key("luckperms", "test"));
 
 
-        ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH, UTF8ResourceBundleControl.get());
+        ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH);
         translationKeys = ImmutableSet.copyOf(bundle.keySet());
         registry.registerAll(Locale.ENGLISH, bundle, false);
     }

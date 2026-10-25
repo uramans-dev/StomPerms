@@ -30,7 +30,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.translation.TranslationStore;
-import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,7 +53,7 @@ public class DurationFormatterTest {
     public static void setupRenderer() {
         TranslationStore.StringBased<MessageFormat> registry =  TranslationStore.messageFormat(Key.key("luckperms", "test"));
 
-        ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH, UTF8ResourceBundleControl.get());
+        ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH);
         registry.registerAll(Locale.ENGLISH, bundle, false);
 
         renderer = TranslatableComponentRenderer.usingTranslationSource(registry);
