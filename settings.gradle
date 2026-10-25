@@ -1,0 +1,25 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version("1.0.0")
+}
+
+rootProject.name = 'luckperms'
+include (
+        'api',
+        'common',
+        'common:loader-utils',
+        'common:minecraft',
+        'common:placeholders',
+        'minestom'
+)

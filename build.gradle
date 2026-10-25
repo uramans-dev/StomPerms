@@ -1,0 +1,90 @@
+plugins {
+    alias(libs.plugins.licenser) apply false
+    alias(libs.plugins.loom) apply false
+}
+
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'dev.yumi.gradle.licenser'
+
+    group = 'com.github.uramans-dev.luckperms'
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        sourceCompatibility = '25'
+        targetCompatibility = '25'
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 25
+    }
+
+    tasks.withType(Test).configureEach {
+        testLogging {
+            events = [TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED]
+            exceptionFormat = TestExceptionFormat.FULL
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+        }
+    }
+
+    jar {
+        from '../LICENSE.txt'
+    }
+
+    def determinePatchVersion = {
+        def tagInfo = providers.exec {
+            commandLine 'git', 'describe', '--tags'
+        }.standardOutput.asText.get().trim()
+
+        return tagInfo.contains('-') ? tagInfo.split('-')[1] : 0
+    }
+
+    def determineBaseVersion = {
+        try {
+            def process = new ProcessBuilder('git', 'describe', '--tags', '--abbrev=0')
+                    .redirectErrorStream(true)
+                    .start()
+
+            def result = process.inputStream.text.trim()
+            process.waitFor()
+
+            if (result.startsWith("v")) {
+                result = result.substring(1)
+            }
+
+            return (result.isEmpty() || result.contains("fatal")) ? "undefined" : result
+        } catch (Exception e) {
+            System.out.println(e.toString())
+            return "undefined"
+        }
+    }
+
+    def forkBaseVersion = determineBaseVersion()
+    def buildNumber = determinePatchVersion()
+    project.ext.fullVersion = "${forkBaseVersion}-${buildNumber}m".toString()
+    version = project.ext.fullVersion
+
+    repositories {
+        // Fix issue with lwjgl-freetype not being found on macOS / ForgeGradle issue
+        //
+        // Could not resolve all files for configuration ':_compileJava_1'.
+        // Could not find lwjgl-freetype-3.3.3-natives-macos-patch.jar (org.lwjgl:lwjgl-freetype:3.3.3).
+        maven {
+            url "https://libraries.minecraft.net"
+            content {
+                includeModule("org.lwjgl", "lwjgl-freetype")
+            }
+
+        }
+        mavenCentral()
+        maven { url 'https://repo.lucko.me/' }
+        maven { url 'https://libraries.minecraft.net/' }
+    }
+}
