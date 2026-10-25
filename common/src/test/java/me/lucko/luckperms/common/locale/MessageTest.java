@@ -48,7 +48,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentIteratorFlag;
 import net.kyori.adventure.text.ComponentIteratorType;
 import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import net.luckperms.api.actionlog.Action;
@@ -84,7 +83,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,20 +108,17 @@ public class MessageTest {
             "luckperms.command.misc.invalid-input-empty-stub"
     );
 
-    private static TranslationRegistry registry; // TODO: DELETE
-    private static TranslationStore.StringBased<MessageFormat> newRegistry;
+    private static TranslationStore.StringBased<MessageFormat> registry;
     private static Set<String> translationKeys;
 
     @BeforeAll
     public static void setupRenderer() {
-        registry = TranslationRegistry.create(Key.key("luckperms", "test")); // TODO: DELETE
-        newRegistry = TranslationStore.messageFormat(Key.key("luckperms", "test"));
+        registry = TranslationStore.messageFormat(Key.key("luckperms", "test"));
 
 
         ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH, UTF8ResourceBundleControl.get());
         translationKeys = ImmutableSet.copyOf(bundle.keySet());
         registry.registerAll(Locale.ENGLISH, bundle, false);
-        newRegistry.registerAll(Locale.ENGLISH, bundle, false); // TODO: DELETE
     }
 
     private static Stream<Field> getMessageFields() {
@@ -137,8 +132,7 @@ public class MessageTest {
     public void testMessage(Field field) {
         Component baseComponent = buildMessage(field);
         for (Component part : getNestedComponents(baseComponent)) {
-            if (part instanceof TranslatableComponent) {
-                TranslatableComponent component = (TranslatableComponent) part;
+            if (part instanceof TranslatableComponent component) {
                 assertTranslatableComponentValid(component);
             }
         }
@@ -167,8 +161,7 @@ public class MessageTest {
         assertTrue(translationKeys.contains(key), "unknown translation key: " + key);
 
         List<Component> args = component.args();
-        MessageFormat fmt = registry.translate(key, Locale.ENGLISH); // TODO: DELETE
-        MessageFormat newFmt = newRegistry.translate(key, Locale.ENGLISH);
+        MessageFormat fmt = registry.translate(key, Locale.ENGLISH);
         assertNotNull(fmt);
         assertEquals(fmt.getFormats().length, args.size(), "number of formats in translation for " + key + " does not match number of arguments");
     }

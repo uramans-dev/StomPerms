@@ -29,7 +29,6 @@ import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.junit.jupiter.api.BeforeAll;
@@ -53,15 +52,12 @@ public class DurationFormatterTest {
 
     @BeforeAll
     public static void setupRenderer() {
-        TranslationRegistry registry = TranslationRegistry.create(Key.key("luckperms", "test")); // TODO: DELETE
-        TranslationStore.StringBased<MessageFormat> newRegistry =  TranslationStore.messageFormat(Key.key("luckperms", "test"));
+        TranslationStore.StringBased<MessageFormat> registry =  TranslationStore.messageFormat(Key.key("luckperms", "test"));
 
         ResourceBundle bundle = ResourceBundle.getBundle("luckperms", Locale.ENGLISH, UTF8ResourceBundleControl.get());
-        registry.registerAll(Locale.ENGLISH, bundle, false); // TODO: DELETE
-        newRegistry.registerAll(Locale.ENGLISH, bundle, false);
+        registry.registerAll(Locale.ENGLISH, bundle, false);
 
-        renderer = TranslatableComponentRenderer.usingTranslationSource(registry); // TODO: DELETE
-        renderer = TranslatableComponentRenderer.usingTranslationSource(newRegistry);
+        renderer = TranslatableComponentRenderer.usingTranslationSource(registry);
     }
 
     private static String render(Component component) {
