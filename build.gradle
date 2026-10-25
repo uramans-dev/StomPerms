@@ -11,6 +11,15 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'dev.yumi.gradle.licenser'
 
+    // Применяем плагин ко всем подпроектам
+
+    extensions.configure(PublishingExtension) { PublishingExtension publishing ->
+        publishing.publications.create('mavenJava', MavenPublication) { MavenPublication pub ->
+            pub.from(components.java)
+        }
+    }
+
+
     group = 'com.github.uramans-dev.luckperms'
 
     tasks.withType(JavaCompile).configureEach {
