@@ -10,7 +10,6 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.context.DefaultContextKeys;
 import net.luckperms.api.context.ImmutableContextSet;
 import net.luckperms.api.node.Node;
-import net.minestom.server.Auth;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.command.CommandManager;
 import net.minestom.server.command.builder.Command;
@@ -30,7 +29,7 @@ import net.minestom.server.network.ConnectionManager;
 public final class MinestomServer {
 
     static void main() {
-        MinecraftServer server = MinecraftServer.init(new Auth.Online());
+        MinecraftServer server = MinecraftServer.init();
         MinecraftServer.setBrandName("LU15");
 
         // initialize LuckPerms
