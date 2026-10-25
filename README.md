@@ -1,16 +1,19 @@
 ![](https://raw.githubusercontent.com/LuckPerms/branding/master/banner/banner.png "Banner")
 
-# LuckPerms for Minestom
+# LuckPerms for Minestom. Ported to v26.2
+## Add Dependency (Gradle)
 ```kts
 repositories {
-    maven("https://repo.hypera.dev/snapshots/")
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation("dev.lu15:luckperms-minestom:5.4-SNAPSHOT")
+    implementation 'com.github.uramans-dev:StomPerms:<TAG || COMMIT_HASH_ID>'
 }
 ```
 
+## Initialization
 ```java
 Path directory = Path.of("luckperms");
 LuckPerms luckPerms = LuckPermsMinestom.builder(directory)
