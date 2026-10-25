@@ -8,19 +8,9 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 subprojects {
     apply plugin: 'java'
-    apply plugin: 'maven-publish'
     apply plugin: 'dev.yumi.gradle.licenser'
 
-    // Применяем плагин ко всем подпроектам
-
-    extensions.configure(PublishingExtension) { PublishingExtension publishing ->
-        publishing.publications.create('mavenJava', MavenPublication) { MavenPublication pub ->
-            pub.from(components.java)
-        }
-    }
-
-
-    group = 'com.github.uramans-dev.luckperms'
+    group = 'com.github.uramans-dev.StomPerms'
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
@@ -50,6 +40,7 @@ subprojects {
     def determinePatchVersion = {
         def tagInfo = providers.exec {
             commandLine 'git', 'describe', '--tags'
+            ignoreExitValue = true
         }.standardOutput.asText.get().trim()
 
         return tagInfo.contains('-') ? tagInfo.split('-')[1] : 0
@@ -78,7 +69,7 @@ subprojects {
     def forkBaseVersion = determineBaseVersion()
     def buildNumber = determinePatchVersion()
     project.ext.fullVersion = "${forkBaseVersion}-${buildNumber}m".toString()
-    version = project.ext.fullVersion
+    version = System.getenv('VERSION') ?: project.ext.fullVersion
 
     repositories {
         // Fix issue with lwjgl-freetype not being found on macOS / ForgeGradle issue
@@ -95,5 +86,17 @@ subprojects {
         mavenCentral()
         maven { url 'https://repo.lucko.me/' }
         maven { url 'https://libraries.minecraft.net/' }
+    }
+}
+
+configure([project(':api'), project(':common'), project(':minestom')]) {
+    apply plugin: 'maven-publish'
+
+    plugins.withId('java') {
+        extensions.configure(PublishingExtension) { PublishingExtension publishing ->
+            publishing.publications.create('mavenJava', MavenPublication) { MavenPublication pub ->
+                pub.from(components.java)
+            }
+        }
     }
 }
