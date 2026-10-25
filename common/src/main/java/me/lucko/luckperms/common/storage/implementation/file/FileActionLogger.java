@@ -37,7 +37,7 @@ import me.lucko.luckperms.common.filter.PageParameters;
 import me.lucko.luckperms.common.plugin.LuckPermsPlugin;
 import me.lucko.luckperms.common.util.gson.GsonProvider;
 import net.luckperms.api.actionlog.Action;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,6 +46,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
@@ -168,8 +169,8 @@ public class FileActionLogger {
     public LogPage getLogPage(FilterList<Action> filters, @Nullable PageParameters page) throws IOException {
         List<LoggedAction> filtered = loadLog(filters)
                 .sorted(Comparator.comparing(LoggedAction::getTimestamp))
-                .collect(Collectors.toList())
-                .reversed();
+                .collect(Collectors.toList());
+        Collections.reverse(filtered);
 
         int size = filtered.size();
         List<LoggedAction> paginated = page != null ? page.paginate(filtered) : filtered;

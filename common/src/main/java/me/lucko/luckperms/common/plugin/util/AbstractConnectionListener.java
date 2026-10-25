@@ -57,6 +57,11 @@ public abstract class AbstractConnectionListener {
 
     protected void recordConnection(UUID uniqueId) {
         this.uniqueConnections.add(uniqueId);
+        this.plugin.getUserManager().getHouseKeeper().registerLoggingIn(uniqueId);
+    }
+
+    protected void handleLoggedIn(UUID uniqueId) {
+        this.plugin.getUserManager().getHouseKeeper().unregisterLoggingIn(uniqueId);
     }
 
     public User loadUser(UUID uniqueId, String username) {
@@ -75,7 +80,7 @@ public abstract class AbstractConnectionListener {
 
         // most likely because ip forwarding is not setup correctly
         // print a warning to the console
-        if (saveResult.includes(PlayerSaveResult.Outcome.OTHER_UNIQUE_IDS_PRESENT_FOR_USERNAME)) {
+        if (saveResult.includes(PlayerSaveResult.Outcome.OTHER_UNIQUE_IDS_PRESENT_FOR_USERNAME) && !Boolean.getBoolean("luckperms.suppress-uuid-mismatch-warning")) {
             Set<UUID> otherUuids = saveResult.getOtherUniqueIds();
 
             this.plugin.getLogger().warn("LuckPerms already has data for player '" + username + "' - but this data is stored under a different UUID.");
@@ -123,6 +128,9 @@ public abstract class AbstractConnectionListener {
                 user.clearNodes(DataType.TRANSIENT, null, false);
             }
         });
+
+        // just in case the player somehow disconnects before they finish logging in
+        this.plugin.getUserManager().getHouseKeeper().unregisterLoggingIn(uniqueId);
     }
 
 }

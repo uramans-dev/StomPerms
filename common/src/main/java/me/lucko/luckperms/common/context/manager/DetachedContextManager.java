@@ -29,14 +29,14 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 import me.lucko.luckperms.common.plugin.LuckPermsPlugin;
 import me.lucko.luckperms.common.util.CaffeineFactory;
 import net.luckperms.api.query.QueryOptions;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * Implementation of {@link ContextManager} which utilises 'detached' supplier caches stored alongside the subject instances.
+ * Implementation of {@link ContextManagerBase} which utilises 'detached' supplier caches stored alongside the subject instances.
  */
-public abstract class DetachedContextManager<S, P extends S> extends ContextManager<S, P> {
+public abstract class DetachedContextManager<S, P extends S> extends ContextManagerBase<S, P> {
 
     private final LoadingCache<S, QueryOptions> fallbackContextsCache = CaffeineFactory.newBuilder()
             .expireAfterWrite(50, TimeUnit.MILLISECONDS)

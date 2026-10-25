@@ -36,11 +36,12 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 import io.nats.client.Options.Builder;
 import me.lucko.luckperms.common.plugin.LuckPermsPlugin;
+import me.lucko.luckperms.common.util.HostAndPort;
 import me.lucko.luckperms.common.util.Throwing;
 import net.luckperms.api.messenger.IncomingMessageConsumer;
 import net.luckperms.api.messenger.Messenger;
 import net.luckperms.api.messenger.message.OutgoingMessage;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.time.Duration;
 
@@ -68,10 +69,12 @@ public class NatsMessenger implements Messenger {
         this.connection.publish(CHANNEL, output.toByteArray());
     }
 
-    public void init(String address, String username, String password, boolean ssl) {
-        String[] addressSplit = address.split(":");
-        String host = addressSplit[0];
-        int port = addressSplit.length > 1 ? Integer.parseInt(addressSplit[1]) : Options.DEFAULT_PORT;
+    public void init(String address, String username, String password, String token, boolean ssl) {
+        HostAndPort hostAndPort = new HostAndPort(address)
+                .requireBracketsForIPv6()
+                .withDefaultPort(Options.DEFAULT_PORT);
+        String host = hostAndPort.getHost();
+        int port = hostAndPort.getPort();
 
         this.connection = createConnection(builder -> {
             builder.server("nats://" + host + ":" + port)
@@ -81,6 +84,10 @@ public class NatsMessenger implements Messenger {
 
             if (username != null && password != null) {
                 builder.userInfo(username, password);
+            }
+
+            if (token != null) {
+                builder.token(token.toCharArray());
             }
 
             if (ssl) {

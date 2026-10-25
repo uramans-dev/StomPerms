@@ -29,13 +29,14 @@ import me.lucko.luckperms.common.plugin.LuckPermsPlugin;
 import net.luckperms.api.messenger.IncomingMessageConsumer;
 import net.luckperms.api.messenger.Messenger;
 import net.luckperms.api.messenger.message.OutgoingMessage;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 import redis.clients.jedis.DefaultJedisClientConfig;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisClientConfig;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.JedisSentineled;
 import redis.clients.jedis.Protocol;
 import redis.clients.jedis.UnifiedJedis;
 
@@ -48,6 +49,7 @@ import java.util.stream.Collectors;
  */
 public class RedisMessenger implements Messenger {
     private static final String CHANNEL = "luckperms:update";
+    private static final int SENTINEL_DEFAULT_PORT = 26379;
 
     private final LuckPermsPlugin plugin;
     private final IncomingMessageConsumer consumer;
@@ -70,6 +72,13 @@ public class RedisMessenger implements Messenger {
         this.init(new JedisPooled(parseAddress(address), jedisConfig(username, password, ssl)));
     }
 
+    public void init(String masterName, List<String> sentinelAddresses, String username, String password, boolean ssl, String sentinelUsername, String sentinelPassword) {
+        Set<HostAndPort> sentinels = sentinelAddresses.stream()
+                .map(addr -> parseAddress(addr, SENTINEL_DEFAULT_PORT))
+                .collect(Collectors.toSet());
+        this.init(new JedisSentineled(masterName, jedisConfig(username, password, ssl), sentinels, jedisConfig(sentinelUsername, sentinelPassword, ssl)));
+    }
+
     private void init(UnifiedJedis jedis) {
         this.jedis = jedis;
         this.sub = new Subscription(this);
@@ -86,9 +95,15 @@ public class RedisMessenger implements Messenger {
     }
 
     private static HostAndPort parseAddress(String address) {
-        String[] addressSplit = address.split(":");
-        String host = addressSplit[0];
-        int port = addressSplit.length > 1 ? Integer.parseInt(addressSplit[1]) : Protocol.DEFAULT_PORT;
+        return parseAddress(address, Protocol.DEFAULT_PORT);
+    }
+
+    private static HostAndPort parseAddress(String address, int defaultPort) {
+        me.lucko.luckperms.common.util.HostAndPort hostAndPort = new me.lucko.luckperms.common.util.HostAndPort(address)
+                .requireBracketsForIPv6()
+                .withDefaultPort(defaultPort);
+        String host = hostAndPort.getHost();
+        int port = hostAndPort.getPort();
         return new HostAndPort(host, port);
     }
 
@@ -160,6 +175,8 @@ public class RedisMessenger implements Messenger {
                 return !((JedisPooled) jedis).getPool().isClosed();
             } else if (jedis instanceof JedisCluster) {
                 return !((JedisCluster) jedis).getClusterNodes().isEmpty();
+            } else if (jedis instanceof JedisSentineled) {
+                return true;
             } else {
                 throw new RuntimeException("Unknown jedis type: " + jedis.getClass().getName());
             }

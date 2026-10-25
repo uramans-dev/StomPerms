@@ -5,8 +5,7 @@ pluginManagement {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
-    id("com.autonomousapps.build-health") version "3.19.2" // Анализ BuildGradle TODO: убрать
+    id("org.gradle.toolchains.foojay-resolver-convention") version("1.0.0")
 }
 
 rootProject.name = 'luckperms'
@@ -14,5 +13,7 @@ include (
         'api',
         'common',
         'common:loader-utils',
-        'minestom',
+        'common:minecraft',
+        'common:placeholders',
+        'minestom'
 )

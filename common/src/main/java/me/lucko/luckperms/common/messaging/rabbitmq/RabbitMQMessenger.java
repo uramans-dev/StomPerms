@@ -37,10 +37,11 @@ import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.Delivery;
 import me.lucko.luckperms.common.plugin.LuckPermsPlugin;
 import me.lucko.luckperms.common.plugin.scheduler.SchedulerTask;
+import me.lucko.luckperms.common.util.HostAndPort;
 import net.luckperms.api.messenger.IncomingMessageConsumer;
 import net.luckperms.api.messenger.Messenger;
 import net.luckperms.api.messenger.message.OutgoingMessage;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -70,9 +71,12 @@ public class RabbitMQMessenger implements Messenger {
     }
 
     public void init(String address, String virtualHost, String username, String password) {
-        String[] addressSplit = address.split(":");
-        String host = addressSplit[0];
-        int port = addressSplit.length > 1 ? Integer.parseInt(addressSplit[1]) : DEFAULT_PORT;
+        HostAndPort hostAndPort = new HostAndPort(address)
+                .requireBracketsForIPv6()
+                .withDefaultPort(DEFAULT_PORT);
+
+        String host = hostAndPort.getHost();
+        int port = hostAndPort.getPort();
 
         this.connectionFactory = new ConnectionFactory();
         this.connectionFactory.setHost(host);

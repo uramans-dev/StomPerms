@@ -37,7 +37,7 @@ import net.luckperms.api.cacheddata.Result;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.query.QueryOptions;
 import net.luckperms.api.util.Tristate;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collections;
 import java.util.Map;
@@ -74,9 +74,7 @@ public class PermissionCache extends UsageTracked implements CachedPermissionDat
         this.queryOptions = queryOptions;
         this.permissions = sourcePermissions;
         this.permissionsView = Collections.unmodifiableMap(Maps.transformValues(this.permissions, Node::getValue));
-
-        this.calculator = calculatorFactory.build(queryOptions, metadata);
-        this.calculator.setSourcePermissions(this.permissions);
+        this.calculator = calculatorFactory.build(queryOptions, this.permissions, metadata);
     }
 
     @Override

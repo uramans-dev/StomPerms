@@ -29,8 +29,8 @@ import me.lucko.luckperms.common.calculator.PermissionCalculator;
 import me.lucko.luckperms.common.calculator.processor.PermissionProcessor;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.util.Tristate;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents the result of a {@link PermissionCalculator} lookup.
@@ -126,6 +126,10 @@ public final class TristateResult extends AbstractResult<Tristate, Node, Tristat
                 return UNDEFINED;
             }
             return new TristateResult(result, node, this.processorClass);
+        }
+
+        public TristateResult result(TristateResult result) {
+            return new TristateResult(result.result(), result.node(), this.processorClass);
         }
     }
 }

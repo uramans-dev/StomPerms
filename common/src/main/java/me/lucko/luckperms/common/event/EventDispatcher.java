@@ -96,7 +96,7 @@ import net.luckperms.api.extension.Extension;
 import net.luckperms.api.model.PlayerSaveResult;
 import net.luckperms.api.model.data.DataType;
 import net.luckperms.api.node.Node;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -231,11 +231,11 @@ public final class EventDispatcher {
     }
 
     public void dispatchNodeChanges(PermissionHolder target, DataType dataType, Difference<Node> changes) {
-        if (!this.eventBus.shouldPost(NodeAddEvent.class) && !this.eventBus.shouldPost(NodeRemoveEvent.class)) {
+        if (changes.isEmpty()) {
             return;
         }
 
-        if (changes.isEmpty()) {
+        if (!this.eventBus.shouldPost(NodeAddEvent.class) && !this.eventBus.shouldPost(NodeRemoveEvent.class)) {
             return;
         }
 
