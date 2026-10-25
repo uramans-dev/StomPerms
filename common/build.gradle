@@ -5,11 +5,6 @@ plugins {
 }
 
 test {
-    /*
-        We are disabling the luckperms.common tests because the switch to Java 25 is causing errors
-        TODO: NEED TEST AFTER MERGE
-    */
-    enabled = false
     useJUnitPlatform {
         if (!project.hasProperty('dockerTests')) {
             excludeTags 'docker'
